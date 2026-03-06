@@ -1,6 +1,7 @@
 __import__('pysqlite3')
 import sys
 sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
+
 import streamlit as st
 import os
 from crewai import Agent, Task, Crew
@@ -17,7 +18,7 @@ api_key = st.text_input("Entre ta clé API Groq (gratuite sur console.groq.com) 
 if st.button("🚀 Lancer le Brainstorming") and api_key:
     os.environ["GROQ_API_KEY"] = api_key
     
-    # On connecte le Llama 3 du cloud (très rapide)
+    # On connecte le Llama 3 du cloud
     llm = ChatGroq(model="llama3-70b-8192")
 
     with st.spinner("Les agents sont en pleine réunion... 🧠"):
@@ -27,7 +28,7 @@ if st.button("🚀 Lancer le Brainstorming") and api_key:
             role="Creative Explorer",
             goal="generate innovative ideas",
             backstory="expert in creative thinking",
-            llm=llm # Il est crucial de donner le LLM à chaque agent !
+            llm=llm
         )
 
         critic = Agent(
@@ -45,7 +46,6 @@ if st.button("🚀 Lancer le Brainstorming") and api_key:
         )
 
         # --- TES TÂCHES ---
-        # Note : Dans les nouvelles versions de CrewAI, 'expected_output' est obligatoire
         task1 = Task(
             description="generate 5 viral video ideas",
             agent=explorer,
@@ -68,7 +68,7 @@ if st.button("🚀 Lancer le Brainstorming") and api_key:
         crew = Crew(
             agents=[explorer, critic, improver],
             tasks=[task1, task2, task3],
-            verbose=False # On cache le texte de terminal pour l'interface web
+            verbose=False
         )
 
         result = crew.kickoff()
